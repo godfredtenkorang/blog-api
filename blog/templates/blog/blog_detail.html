@@ -1,0 +1,25 @@
+{% extends 'blog/base.html' %}
+{% load static %}
+{% block content %}
+{% block css_files %}
+<link rel="stylesheet" type="text/css" href="{% static 'blog/styles.css' %}">
+{% endblock %}
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card mb-3">
+                    <img class="card-img-top" src="{{ object.image.url }}" height="500px" width="100%"
+                        alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ object.title }}</h5>
+                        <p class="card-text">{{ object.content }}</p>
+                        <p class="card-text"><small class="text-muted">{{ object.author }} </small><small
+                                class="text-muted">Last updated {{ object.date_posted }}</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
