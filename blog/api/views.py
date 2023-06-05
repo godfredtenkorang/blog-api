@@ -1,12 +1,14 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from blog.models import Blog
 from blog.api.serializers import BlogSerializer
 from django.contrib.auth.models import User
 
 
 @api_view(['GET'])
+@permission_classes((IsAuthenticated,))
 def blog_view(request):
     blogs = Blog.objects.all()
     serializer = BlogSerializer(blogs, many=True)
@@ -14,6 +16,7 @@ def blog_view(request):
 
 
 @api_view(['GET'])
+@permission_classes((IsAuthenticated,))
 def blog_detail_view(request, pk):
     try:
         blog = Blog.objects.get(id=pk)
@@ -26,11 +29,16 @@ def blog_detail_view(request, pk):
     
     
 @api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
 def blog_update_view(request, pk):
     try:
         blog = Blog.objects.get(id=pk)
     except Blog.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    user = request.user
+    if blog.author != user:
+        return Response({'response': "You don't have permission to edit that."})
     
     if request.method == 'PUT':
         serializer = BlogSerializer(blog, data=request.data)
@@ -43,11 +51,16 @@ def blog_update_view(request, pk):
     
     
 @api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
 def blog_delete_view(request, pk):
     try:
         blog = Blog.objects.get(id=pk)
     except Blog.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    user = request.user
+    if blog.author != user:
+        return Response({'response': "You don't have permission to delete that."})
     
     if request.method == 'DELETE':
         operation = blog.delete()
@@ -61,9 +74,10 @@ def blog_delete_view(request, pk):
     
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def blog_create_view(request):
     
-    user = User.objects.get(pk=1)
+    user = request.user
     
     blog = Blog(author=user)
     
